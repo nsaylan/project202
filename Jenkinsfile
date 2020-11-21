@@ -1,27 +1,51 @@
-pipeline {
-    agent { label "master" }
+pipeline{
+    agent any
     environment {
-        ECR_REGISTRY = "724850377345.dkr.ecr.us-east-1.amazonaws.com"
-        APP_REPO_NAME= "project-repo"
+        MYSQL_DATABASE_HOST = "database"
+        MYSQL_DATABASE_PASSWORD = "Clarusway_1"
+        MYSQL_DATABASE_USER = "admin"
+        MYSQL_DATABASE_DB = "phonebook_db"
+        MYSQL_DATABASE_PORT = 3306
+        PATH="/usr/local/bin/:${env.PATH}"
     }
-    stages {
-        stage('Build Docker Image') {
-            steps {
-                sh 'docker build --force-rm -t "$ECR_REGISTRY/$APP_REPO_NAME:latest" .'
-                sh 'docker image ls'
+    stages{
+        stage("compile"){
+            agent{
+                docker{
+                    image 'python:alpine'
+                }
+            }
+            steps{
+                withEnv(["HOME=${env.WORKSPACE}"]) {
+                    sh 'pip install -r requirements.txt'
+                    sh 'python -m py_compile app/*.py'
+                    stash(name: 'compilation_result', includes: 'app/*.py*')
+                }   
             }
         }
-        stage('Push Image to ECR Repo') {
-            steps {
-                sh 'aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin "$ECR_REGISTRY"'
-                sh 'docker push "$ECR_REGISTRY/$APP_REPO_NAME:latest"'
+
+        stage('build'){
+            agent any
+            steps{
+                sh "docker build -t matt/handson-jenkins ."
+                sh "docker tag matt/handson-jenkins:latest 724850377345.dkr.ecr.us-east-1.amazonaws.com/project-repo"
             }
         }
-    }
-    post {
-        always {
-            echo 'Deleting all local images'
-            sh 'docker image prune -af'
+        stage('push'){
+            agent any
+            steps{
+                sh "aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 724850377345.dkr.ecr.us-east-1.amazonaws.com"
+                sh "docker push 724850377345.dkr.ecr.us-east-1.amazonaws.com/project-repo"
+            }
+        }
+
+        stage('compose'){
+            agent any
+            steps{
+                sh "aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 724850377345.dkr.ecr.us-east-1.amazonaws.com"
+                sh "docker-compose up -d"
+            }
         }
     }
 }
+
