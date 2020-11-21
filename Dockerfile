@@ -1,6 +1,14 @@
 FROM python:alpine
-COPY . /app
-WORKDIR /app
+COPY . .
+
+
+ENV MYSQL_DATABASE_HOST database
+ENV MYSQL_DATABASE_USER clarusway
+ENV MYSQL_DATABASE_PASSWORD Clarusway
+ENV MYSQL_DATABASE_DB phonebook
+ENV MYSQL_DATABASE_PORT 3306
+
 RUN pip install -r requirements.txt
 EXPOSE 80
-CMD python ./welcome.py
+ENTRYPOINT [ "python" ]
+CMD ["src/app.py"]
