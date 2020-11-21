@@ -11,4 +11,4 @@ ENV MYSQL_DATABASE_PORT 3306
 RUN pip install -r requirements.txt
 EXPOSE 80
 ENTRYPOINT [ "python" ]
-CMD ["src/app.py"]
+CMD ["app/phonebook-app.py"]
