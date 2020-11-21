@@ -19,7 +19,7 @@ services:
         environment:
             MYSQL_DATABASE_HOST: database
             MYSQL_DATABASE_USER: admin
-            MYSQL_DATABASE_PASSWORD: Clarusway-1
+            MYSQL_DATABASE_PASSWORD: Clarusway_1
             MYSQL_DATABASE_DB: phonebook_db
             MYSQL_DATABASE_PORT: 3306
         depends_on:
