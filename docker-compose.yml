@@ -1,0 +1,37 @@
+version: "3.7"
+
+services:
+    database:
+        image: mysql:5.7
+        volumes:
+          - /my/own/datadir:/var/lib/mysql
+        environment:
+            MYSQL_ROOT_PASSWORD: R1234r
+            MYSQL_DATABASE: phonebook_db
+            MYSQL_USER: admin
+            MYSQL_PASSWORD: Clarusway_1
+            MYSQL_PORT: 3306
+        networks:
+            - clarusnet
+    app:
+        image: 724850377345.dkr.ecr.us-east-1.amazonaws.com/project-repo
+        restart: always
+        environment:
+            MYSQL_DATABASE_HOST: database
+            MYSQL_DATABASE_USER: admin
+            MYSQL_DATABASE_PASSWORD: Clarusway_1
+            MYSQL_DATABASE_DB: phonebook_db
+            MYSQL_DATABASE_PORT: 3306
+        depends_on:
+            - database
+        ports:
+            - "80:80"
+        networks:
+            - clarusnet
+networks:
+    clarusnet:
+        driver: bridge
+
+
+
+        
